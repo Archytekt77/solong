@@ -6,26 +6,25 @@
 /*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:12:46 by lmaria            #+#    #+#             */
-/*   Updated: 2025/01/31 16:18:00 by lmaria           ###   ########.fr       */
+/*   Updated: 2025/02/05 14:06:10 by lmaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
-#include "mlx.h"
+#include "./minilibx-linux/mlx.h"
 
-typedef struct s_game {
-    void    *mlx;
-    void    *win;
-    t_map   *map;
-    void    *img_wall;
-    void    *img_floor;
-    void    *img_player;
-    void    *img_collectible;
-    void    *img_exit;
-}   t_game;
+
+void free_textures(t_game *game)
+{
+    if (game->img_wall) mlx_destroy_image(game->mlx, game->img_wall);
+    if (game->img_floor) mlx_destroy_image(game->mlx, game->img_floor);
+    if (game->img_player) mlx_destroy_image(game->mlx, game->img_player);
+    if (game->img_collectible) mlx_destroy_image(game->mlx, game->img_collectible);
+    if (game->img_exit) mlx_destroy_image(game->mlx, game->img_exit);
+}
 
 // Charger les textures
-void load_textures(t_game *game)
+bool load_textures(t_game *game)
 {
     int img_width, img_height;
 
@@ -38,9 +37,12 @@ void load_textures(t_game *game)
     if (!game->img_wall || !game->img_floor || !game->img_player || !game->img_collectible || !game->img_exit)
     {
         printf("Error\nFailed to load textures\n");
-        exit(EXIT_FAILURE);
+        free_textures(game);  // Libère les textures déjà chargées
+        return false;
     }
+    return true;
 }
+
 
 // Afficher la carte avec MiniLibX
 void render_map(t_game *game)
@@ -67,25 +69,35 @@ void render_map(t_game *game)
 }
 
 // Initialiser la fenêtre et charger la carte
-void init_window(t_game *game)
+bool init_window(t_game *game)
 {
     game->mlx = mlx_init();
     if (!game->mlx)
     {
         printf("Error\nFailed to initialize MiniLibX\n");
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     game->win = mlx_new_window(game->mlx, game->map->width * 64, game->map->height * 64, "So Long");
     if (!game->win)
     {
         printf("Error\nFailed to create window\n");
-        exit(EXIT_FAILURE);
+        free(game->mlx); // Libère MiniLibX si la fenêtre échoue
+        return false;
     }
 
-    load_textures(game);
+    if (!load_textures(game)) // Modifier load_textures() pour retourner `bool`
+    {
+        printf("Error\nFailed to load textures\n");
+        mlx_destroy_window(game->mlx, game->win);
+        free(game->mlx);
+        return false;
+    }
+
     render_map(game);
+    return true;
 }
+
 
 // Fermer proprement
 int close_window(t_game *game)
@@ -98,8 +110,11 @@ int close_window(t_game *game)
 // Gestion des touches
 int key_hook(int keycode, t_game *game)
 {
-    if (keycode == 65307) // Touche ESC
+    if (keycode == 65307) // Touche "Esc"
         close_window(game);
     return (0);
 }
+
+
+
 

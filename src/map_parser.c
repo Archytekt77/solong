@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/31 15:04:22 by lmaria            #+#    #+#             */
-/*   Updated: 2025/01/31 15:09:38 by lmaria           ###   ########.fr       */
+/*   Created: 2025/02/05 15:11:52 by lmaria            #+#    #+#             */
+/*   Updated: 2025/02/05 17:21:00 by lmaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,24 +43,31 @@ char	*read_file(char *filename)
 	return (buffer);
 }
 
-#include <string.h>
-
-// Fonction qui split une string en tableau 2D
-char	**ft_split(char *str, char delimiter)
+// Fonction qui split une string en tableau 2D et enlève les '\n'
+char	**ft_split_clean(char *str, char delimiter)
 {
-	int		i = 0, j = 0, k = 0, count;
+	int		count = 1, i = 0, j = 0, k = 0;
 	char	**array;
 
-	i = 0, j = 0, k = 0, count = 1;
-	for (int x = 0; str[x]; x++) // Compter le nombre de lignes
+	// Compter le nombre de lignes
+	for (int x = 0; str[x]; x++)
 		if (str[x] == delimiter)
 			count++;
+
+	// Allocation mémoire pour le tableau de lignes
 	array = malloc((count + 1) * sizeof(char *));
 	if (!array)
 		return (NULL);
+
+	// Initialisation de la première ligne
 	array[i] = malloc(strlen(str) + 1);
 	if (!array[i])
+	{
+		free(array);
 		return (NULL);
+	}
+
+	// Remplir le tableau en supprimant les '\n'
 	while (str[k])
 	{
 		if (str[k] == delimiter)
@@ -68,9 +75,16 @@ char	**ft_split(char *str, char delimiter)
 			array[i][j] = '\0';
 			i++;
 			j = 0;
-			array[i] = malloc(strlen(str) + 1);
+			array[i] = malloc(strlen(str) + 1);  // Allocation correcte
+			if (!array[i])
+			{
+				while (i-- > 0)
+					free(array[i]);
+				free(array);
+				return (NULL);
+			}
 		}
-		else
+		else if (str[k] != '\n')
 			array[i][j++] = str[k];
 		k++;
 	}
@@ -84,20 +98,53 @@ t_map	*parse_map(char *filename)
 {
 	char	*file_content;
 	t_map	*map;
+	int		current_width;
 
 	file_content = read_file(filename);
 	if (!file_content)
 		return (NULL);
+	
 	map = malloc(sizeof(t_map));
 	if (!map)
+	{
+		free(file_content);
 		return (NULL);
-	map->map = ft_split(file_content, '\n');
+	}
+
+	// Debug : Contenu du fichier avant traitement
+	printf("=== DEBUG: Contenu brut du fichier ===\n%s\n", file_content);
+
+	map->map = ft_split_clean(file_content, '\n');
 	free(file_content);
-	// Calculer la hauteur et la largeur
+
+	// Debug : Contenu après parsing
+	printf("=== DEBUG: Contenu après parsing ===\n");
+	for (int i = 0; map->map[i]; i++)
+		printf("Ligne %d: [%s] (longueur: %lu)\n", i, map->map[i], strlen(map->map[i]));
+
+	if (!map->map)
+	{
+		free(map);
+		return (NULL);
+	}
+
+	// Calculer la hauteur et la largeur avec vérification de cohérence
 	map->height = 0;
-	while (map->map[map->height])
-		map->height++;
 	map->width = strlen(map->map[0]);
+
+	while (map->map[map->height])
+	{
+		current_width = strlen(map->map[map->height]);
+		if (current_width != map->width)
+		{
+			printf("Error\nMap lines have inconsistent width at line %d (expected %d, got %d): [%s]\n",
+					map->height, map->width, current_width, map->map[map->height]);
+			free_map(map);
+			return (NULL);
+		}
+		map->height++;
+	}
+
 	map->players = 0;
 	map->exits = 0;
 	map->collectibles = 0;
@@ -105,16 +152,16 @@ t_map	*parse_map(char *filename)
 }
 
 // Libère la mémoire allouée pour la carte
-void free_map(t_map *map)
+void	free_map(t_map *map)
 {
-    if (!map)
-        return;
-
-    if (map->map)
-    {
-        for (int i = 0; i < map->height; i++)
-            free(map->map[i]);
-        free(map->map);
-    }
-    free(map);
+	if (!map)
+		return;
+	if (map->map)
+	{
+		for (int i = 0; i < map->height; i++)
+			free(map->map[i]);
+		free(map->map);
+	}
+	free(map);
 }
+
