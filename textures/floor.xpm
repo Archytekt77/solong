@@ -1,5 +1,5 @@
 /* XPM */
-static char * Dirt_02_128x128_xpm[] = {
+static char * floor_xpm[] = {
 "128 128 6208 2",
 "  	c #584032",
 ". 	c #744E37",

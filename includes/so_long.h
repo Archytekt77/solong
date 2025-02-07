@@ -6,7 +6,7 @@
 /*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:04:58 by lmaria            #+#    #+#             */
-/*   Updated: 2025/02/05 14:01:04 by lmaria           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:44:11 by lmaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
-# include <unistd.h>
 # include <string.h>
+# include <unistd.h>
 
 typedef struct s_map
 {
@@ -51,6 +51,5 @@ void		free_map(t_map *map);
 int			key_hook(int keycode, t_game *game);
 int			close_window(t_game *game);
 bool		init_window(t_game *game);
-
 
 #endif

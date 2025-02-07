@@ -6,7 +6,7 @@
 /*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 15:11:52 by lmaria            #+#    #+#             */
-/*   Updated: 2025/02/05 19:52:04 by lmaria           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:38:43 by lmaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,16 @@ char	*read_file(char *filename)
 // Fonction qui split une string en tableau 2D et enlève les '\n'
 char	**ft_split_clean(char *str, char delimiter)
 {
-	int		count = 1, i = 0, j = 0, k;
+	int		count;
+	int		i;
+	int		j;
+	int		k;
 	char	**array;
 
-	count = 1, i = 0, j = 0, k = 0;
+	count = 1;
+	i = 0;
+	j = 0;
+	k = 0;
 	for (int x = 0; str[x]; x++)
 		if (str[x] == delimiter)
 			count++;
@@ -121,8 +127,11 @@ t_map	*parse_map(char *filename)
 		if (current_width != map->width)
 		{
 			printf("Error\nMap lines have inconsistent width at line \
-				%d (expected %d, got %d): [%s]\n", map->height, map->width,
-				current_width, map->map[map->height]);
+				%d (expected %d, got %d): [%s]\n",
+				map->height,
+				map->width,
+				current_width,
+				map->map[map->height]);
 			free_map(map);
 			return (NULL);
 		}
