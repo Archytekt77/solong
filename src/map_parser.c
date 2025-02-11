@@ -6,7 +6,7 @@
 /*   By: archytekt <archytekt@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 15:11:52 by lmaria            #+#    #+#             */
-/*   Updated: 2025/02/11 01:30:45 by archytekt        ###   ########.fr       */
+/*   Updated: 2025/02/11 01:58:14 by archytekt        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,16 +39,21 @@ int	count_lines(char *filename)
 	return (lines);
 }
 
-// Lit une ligne et l'ajoute à la map
+// Lit une ligne et enlève le '\n' à la fin si nécessaire
 bool	read_map_line(int fd, t_map *map, int i)
 {
-	map->map[i] = get_next_line(fd);
-	if (!map->map[i])
+	char	*line;
+
+	line = get_next_line(fd);
+	if (!line)
 	{
 		free_map(map);
 		close(fd);
 		return (false);
 	}
+	if (line[ft_strlen(line) - 1] == '\n')
+		line[ft_strlen(line) - 1] = '\0';
+	map->map[i] = line;
 	return (true);
 }
 
