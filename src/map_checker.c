@@ -3,66 +3,81 @@
 /*                                                        :::      ::::::::   */
 /*   map_checker.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: archytekt <archytekt@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:04:52 by lmaria            #+#    #+#             */
-/*   Updated: 2025/02/06 14:27:01 by lmaria           ###   ########.fr       */
+/*   Updated: 2025/02/11 01:05:02 by archytekt        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "so_long.h"
 
+// Vérifie si une ligne est bien fermée par des murs
+bool	is_line_closed(char *line, int width)
+{
+	if (line[0] != '1' || line[width - 1] != '1')
+		return (false);
+	return (true);
+}
+
 // Vérifier si la carte est fermée par des murs
 bool	is_map_closed(t_map *map)
 {
-	int	expected_width;
+	int	i;
 
-	expected_width = map->width;
-	for (int i = 0; i < map->height; i++)
+	if (!is_line_closed(map->map[0], map->width)
+		|| !is_line_closed(map->map[map->height - 1], map->width))
+		return (false);
+	i = 0;
+	while (i < map->height)
 	{
-		if ((int)ft_strlen(map->map[i]) != expected_width)
-		{
-			ft_printf("Error\nMap lines have inconsistent width.\n");
+		if (!is_line_closed(map->map[i], map->width))
 			return (false);
-		}
+		i++;
 	}
-	for (int i = 0; i < map->width; i++)
-		if (map->map[0][i] != '1' || map->map[map->height - 1][i] != '1')
-			return (false);
-	for (int i = 0; i < map->height; i++)
-		if (map->map[i][0] != '1' || map->map[i][map->width - 1] != '1')
-			return (false);
+	return (true);
+}
+
+// Vérifie et compte les éléments de la carte
+bool	process_map_element(t_map *map, char c, int i, int j)
+{
+	if (c == 'P')
+	{
+		map->players++;
+		map->player_x = j;
+		map->player_y = i;
+	}
+	else if (c == 'E')
+		map->exits++;
+	else if (c == 'C')
+		map->collectibles++;
+	else if (c != '1' && c != '0')
+	{
+		ft_printf("Error\nInvalid character detected: '%c' at (%d, %d)\n", c, i,
+			j);
+		return (false);
+	}
 	return (true);
 }
 
 // Vérifier les caractères valides et compter les éléments
 bool	check_elements(t_map *map)
 {
-	char	c;
+	int	i;
+	int	j;
 
-	for (int i = 0; i < map->height; i++)
+	i = 0;
+	while (i < map->height)
 	{
-		for (int j = 0; j < map->width; j++)
+		j = 0;
+		while (j < map->width)
 		{
-			c = map->map[i][j];
-			if (c == 'P')
-			{
-				map->players++;
-				map->player_x = j;
-				map->player_y = i;
-			}
-			else if (c == 'E')
-				map->exits++;
-			else if (c == 'C')
-				map->collectibles++;
-			else if (c != '1' && c != '0')
-			{
-				ft_printf("Error\nInvalid character detected: '%c' at (%d, \
-					%d)\n", c, i, j);
+			if (!process_map_element(map, map->map[i][j], i, j))
 				return (false);
-			}
+			j++;
 		}
+		i++;
 	}
 	ft_printf("Total Players: %d, Exits: %d, Collectibles: %d\n", map->players,
 		map->exits, map->collectibles);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmaria <lmaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: archytekt <archytekt@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:04:58 by lmaria            #+#    #+#             */
-/*   Updated: 2025/02/06 14:44:11 by lmaria           ###   ########.fr       */
+/*   Updated: 2025/02/11 01:44:08 by archytekt        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,5 +51,8 @@ void		free_map(t_map *map);
 int			key_hook(int keycode, t_game *game);
 int			close_window(t_game *game);
 bool		init_window(t_game *game);
+bool		is_map_width_valid(t_map *map);
+void		render_map(t_game *game);
+bool		load_textures(t_game *game);
 
 #endif
